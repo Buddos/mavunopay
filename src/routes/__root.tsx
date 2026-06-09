@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
-import appCss from "../styles.css?url";
+import appCss from "../styles.pcss?url";
 import { reportMavunopayError } from "../lib/mavunopay-error-reporting";
 
 function NotFoundComponent() {
