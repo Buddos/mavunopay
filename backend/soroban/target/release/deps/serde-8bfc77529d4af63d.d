@@ -1,0 +1,14 @@
+/home/bonface/Documents/mavunopay/backend/soroban/target/release/deps/serde-8bfc77529d4af63d.d: /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /home/bonface/Documents/mavunopay/backend/soroban/target/release/build/serde-20e25ba568f5ebf0/out/private.rs
+
+/home/bonface/Documents/mavunopay/backend/soroban/target/release/deps/libserde-8bfc77529d4af63d.rlib: /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /home/bonface/Documents/mavunopay/backend/soroban/target/release/build/serde-20e25ba568f5ebf0/out/private.rs
+
+/home/bonface/Documents/mavunopay/backend/soroban/target/release/deps/libserde-8bfc77529d4af63d.rmeta: /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /home/bonface/Documents/mavunopay/backend/soroban/target/release/build/serde-20e25ba568f5ebf0/out/private.rs
+
+/home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs:
+/home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs:
+/home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs:
+/home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs:
+/home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs:
+/home/bonface/Documents/mavunopay/backend/soroban/target/release/build/serde-20e25ba568f5ebf0/out/private.rs:
+
+# env-dep:OUT_DIR=/home/bonface/Documents/mavunopay/backend/soroban/target/release/build/serde-20e25ba568f5ebf0/out

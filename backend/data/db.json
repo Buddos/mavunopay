@@ -1,0 +1,56 @@
+{
+  "farmers": [
+    {
+      "id": "9074e0aa-4a25-4898-9913-29323776c8e5",
+      "phone": "+254700000001",
+      "name": "Test Farmer",
+      "createdAt": "2026-06-09T11:09:41.645Z",
+      "stellarPublicKey": "GCKKUG6BB5ZMHMMEMWSIV3A5WYBOWG5KQQWMJKOR63OVR63NT2XEBZT3",
+      "allocationRules": [
+        {
+          "key": "inputs",
+          "pct": 20
+        },
+        {
+          "key": "emergency",
+          "pct": 10
+        },
+        {
+          "key": "education",
+          "pct": 10
+        },
+        {
+          "key": "disposable",
+          "pct": 60
+        }
+      ]
+    },
+    {
+      "id": "a57f1771-4dfa-48c0-98ac-00fc2af16f61",
+      "phone": "+254700000001",
+      "name": "Test Farmer",
+      "createdAt": "2026-06-09T11:38:46.976Z",
+      "stellarPublicKey": "GBECUOZ5HD3XKPGDJNILVHJJ6QVI4EAB5STTYVFGHNNARXGP6XEKUN2J",
+      "allocationRules": [
+        {
+          "key": "inputs",
+          "pct": 20
+        },
+        {
+          "key": "emergency",
+          "pct": 10
+        },
+        {
+          "key": "education",
+          "pct": 10
+        },
+        {
+          "key": "disposable",
+          "pct": 60
+        }
+      ]
+    }
+  ],
+  "goals": [],
+  "transactions": []
+}

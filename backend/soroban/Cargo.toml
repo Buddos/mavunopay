@@ -1,0 +1,15 @@
+[package]
+name = "mavunopay-allocation-contract"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+soroban-sdk = { version = "26.0.1" }
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true

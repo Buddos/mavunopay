@@ -1,0 +1,10 @@
+/home/bonface/Documents/mavunopay/backend/soroban/target/release/deps/soroban_spec_rust-c3763fc5c0708c86.d: /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-spec-rust-26.1.0/src/lib.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-spec-rust-26.1.0/src/syn_ext.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-spec-rust-26.1.0/src/trait.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-spec-rust-26.1.0/src/types.rs
+
+/home/bonface/Documents/mavunopay/backend/soroban/target/release/deps/libsoroban_spec_rust-c3763fc5c0708c86.rlib: /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-spec-rust-26.1.0/src/lib.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-spec-rust-26.1.0/src/syn_ext.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-spec-rust-26.1.0/src/trait.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-spec-rust-26.1.0/src/types.rs
+
+/home/bonface/Documents/mavunopay/backend/soroban/target/release/deps/libsoroban_spec_rust-c3763fc5c0708c86.rmeta: /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-spec-rust-26.1.0/src/lib.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-spec-rust-26.1.0/src/syn_ext.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-spec-rust-26.1.0/src/trait.rs /home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-spec-rust-26.1.0/src/types.rs
+
+/home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-spec-rust-26.1.0/src/lib.rs:
+/home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-spec-rust-26.1.0/src/syn_ext.rs:
+/home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-spec-rust-26.1.0/src/trait.rs:
+/home/bonface/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/soroban-spec-rust-26.1.0/src/types.rs:
