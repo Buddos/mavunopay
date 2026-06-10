@@ -1,8 +1,23 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+let server = null;
+
+async function getServer() {
+  if (!server) {
+    const serverModule = await import(path.join(__dirname, '../dist/server/index.mjs'));
+    server = serverModule.default;
+  }
+  return server;
+}
+
 export default async function handler(req, res) {
   try {
-    const { default: handler } = await import('../dist/server/index.mjs');
+    const server = await getServer();
     
-    const response = await handler.fetch(
+    const response = await server.fetch(
       new Request(`http://${req.headers.host}${req.url}`, {
         method: req.method,
         headers: req.headers,
