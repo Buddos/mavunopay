@@ -13,22 +13,7 @@ export default defineConfig({
     server: { entry: "server" },
   },
   nitro: {
-    preset: process.env.VERCEL ? "vercel" : "node-server",
-    output: {
-      dir: "./.vercel/output",
-      serverDir: "./.vercel/output/functions/__server.func",
-    },
-    vercel: {
-      config: {
-        functions: {
-          "*.mjs": {
-            runtime: "nodejs22.x",
-            maxDuration: 60,
-            memory: 1024,
-          },
-        },
-      },
-    },
+    preset: "node-server",
   },
   vite: {
     server: {

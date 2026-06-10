@@ -4,7 +4,6 @@
   "installCommand": "npm install",
   "devCommand": "npm run dev",
   "env": {
-    "VERCEL": "1"
-  },
-  "outputDirectory": ".vercel/output"
+    "NODE_ENV": "production"
+  }
 }
