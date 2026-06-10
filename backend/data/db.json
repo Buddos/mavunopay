@@ -49,8 +49,39 @@
           "pct": 60
         }
       ]
+    },
+    {
+      "id": "18b6ee6b-484b-4862-a518-1b379bbdc50e",
+      "phone": "+254700123456",
+      "name": "Test Farmer",
+      "nationalId": "12345678",
+      "createdAt": "2026-06-09T17:45:08.206Z",
+      "stellarPublicKey": "GAM2RLUK5Q6FH4DQARZYZ27KTDIJKBEFSK5B35YORBXIDMVBDWH44UJM",
+      "allocationRules": [
+        {
+          "key": "inputs",
+          "pct": 20
+        },
+        {
+          "key": "emergency",
+          "pct": 10
+        },
+        {
+          "key": "education",
+          "pct": 10
+        },
+        {
+          "key": "disposable",
+          "pct": 60
+        }
+      ],
+      "pin": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"
     }
   ],
   "goals": [],
-  "transactions": []
+  "transactions": [],
+  "cooperatives": [],
+  "withdrawalRequests": [],
+  "notifications": [],
+  "loans": []
 }

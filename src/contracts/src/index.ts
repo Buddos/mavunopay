@@ -58,7 +58,7 @@ export interface AllocationResult {
   farmer: string;
 }
 
-export interface Client {
+export interface ClientMethods {
   /**
    * Construct and simulate a allocate_payment transaction. Returns an `AssembledTransaction` object which will have a `result` field containing the result of the simulation. If this transaction changes contract state, you will need to call `signAndSend()` on the returned object.
    * Allocate an incoming payment according to farmer's rules

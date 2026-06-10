@@ -31,12 +31,7 @@ if (typeof window !== "undefined") {
 }
 
 
-export const networks = {
-  testnet: {
-    networkPassphrase: "Test SDF Network ; September 2015",
-    contractId: "CDTEZY73O47FREBTUDDFTBTINS7ZI2FTW37XGTISP22HEK3DGA5DA67Y",
-  }
-} as const
+
 
 
 export interface AllocationInfo {
@@ -57,6 +52,46 @@ export interface AllocationResult {
   amount: i128;
   farmer: string;
 }
+
+export interface AllocationCompletedEvent {
+  farmer: string;
+  amount: i128;
+  allocations: Array<AllocationInfo>;
+}
+
+export interface GoalLockedEvent {
+  farmer: string;
+  goal_id: string;
+  target_amount: i128;
+  unlock_at: u64;
+}
+
+export interface EarlyWithdrawalEvent {
+  farmer: string;
+  goal_id: string;
+  payout: i128;
+}
+
+export interface CoopWithdrawalEvent {
+  coop_id: string;
+  proposal_id: u32;
+  proposer: string;
+  amount: i128;
+}
+
+export interface AdminActionEvent {
+  action_id: u32;
+  action: string;
+  proposer: string;
+  executed: boolean;
+}
+
+export type ContractEvent =
+  | { type: "AllocationCompletedEvent"; event: AllocationCompletedEvent }
+  | { type: "GoalLockedEvent"; event: GoalLockedEvent }
+  | { type: "EarlyWithdrawalEvent"; event: EarlyWithdrawalEvent }
+  | { type: "CoopWithdrawalEvent"; event: CoopWithdrawalEvent }
+  | { type: "AdminActionEvent"; event: AdminActionEvent };
 
 export interface Client {
   /**

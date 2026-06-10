@@ -124,10 +124,11 @@ export class KeyVault {
 
   // Local secure storage (uses environment variables or encrypted local file)
   private async storeLocalSecret(farmerId: string, secret: string, publicKey: string): Promise<void> {
-    // In production, write to encrypted file or HSM-backed store
+    // Local storage is only safe for development and test environments.
+    // In production, configure KEY_VAULT_PROVIDER=aws or hashicorp and store secrets in a managed vault.
     const envKey = `STELLAR_SECRET_${farmerId}`;
     process.env[envKey] = secret;
-    console.warn(`WARNING: Storing secret for ${farmerId} in environment. For production, use AWS Secrets Manager or Vault.`);
+    console.warn(`WARNING: Local secret storage is enabled for ${farmerId}. Use a managed vault provider for production deployments.`);
   }
 
   private async retrieveLocalSecret(farmerId: string): Promise<StoredSecret | null> {

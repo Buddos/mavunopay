@@ -2,7 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { withCors } from '../../lib/cors';
-import { query, useSupabase } from '../../lib/db';
+import { query, useSupabase, ensureFarmersSchema } from '../../lib/db';
+import { hashPin } from '../../lib/auth';
 
 const DB = path.join(process.cwd(), 'data', 'db.json');
 
@@ -15,22 +16,31 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { identifier } = req.body;
-  if (!identifier) {
-    return res.status(400).json({ error: 'Identifier is required' });
+  const { phone, pin } = req.body;
+  if (!phone || !pin) {
+    return res.status(400).json({ error: 'Phone and PIN are required' });
+  }
+  if (typeof pin !== 'string' || pin.trim().length !== 4) {
+    return res.status(400).json({ error: 'PIN must be exactly 4 digits' });
   }
 
+  const hashedPin = hashPin(pin.trim());
   let farmer: any = null;
 
   if (useSupabase()) {
-    const whereClause = identifier.includes('+')
-      ? 'phone = $1'
-      : 'id = $1';
-    const result = await query(`SELECT id, phone, name, stellar_public_key, created_at FROM farmers WHERE ${whereClause} LIMIT 1`, [identifier]);
+    await ensureFarmersSchema();
+    const result = await query(`SELECT id, phone, name, stellar_public_key, created_at, pin FROM farmers WHERE phone = $1 LIMIT 1`, [phone]);
     farmer = result.rows?.[0] ?? null;
+    if (!farmer || farmer.pin !== hashedPin) {
+      return res.status(401).json({ error: 'Invalid phone or PIN' });
+    }
+    delete farmer.pin;
   } else {
     const db = readDB();
-    farmer = db.farmers.find((f: any) => f.id === identifier || f.phone === identifier) || null;
+    farmer = db.farmers.find((f: any) => f.phone === phone) || null;
+    if (!farmer || farmer.pin !== hashedPin) {
+      return res.status(401).json({ error: 'Invalid phone or PIN' });
+    }
   }
 
   if (!farmer) {

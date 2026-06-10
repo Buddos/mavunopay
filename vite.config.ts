@@ -12,4 +12,17 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Dev server proxy: forward frontend `/api` requests to the backend.
+  // Adjust `target` below if your backend runs on a different host/port.
+  vite: {
+    server: {
+      proxy: {
+        "/api": {
+          target: "http://localhost:3001",
+          changeOrigin: true,
+          secure: false,
+        },
+      },
+    },
+  },
 });

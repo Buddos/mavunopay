@@ -17,9 +17,10 @@ export function getSorobanConfig(): SorobanConfig {
     ? 'Public Global Stellar Network ; September 2015'
     : 'Test SDF Network ; September 2015';
   
-  const rpcUrl = isPublic
+  const defaultRpcUrl = isPublic
     ? 'https://soroban-mainnet.stellar.org:443'
     : 'https://soroban-testnet.stellar.org:443';
+  const rpcUrl = process.env.SOROBAN_RPC_URL || defaultRpcUrl;
 
   return {
     contractId: contractId || undefined,

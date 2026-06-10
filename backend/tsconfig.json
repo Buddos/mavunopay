@@ -9,6 +9,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
+    "rootDir": ".",
     "noEmit": true,
     "incremental": true,
     "esModuleInterop": true,

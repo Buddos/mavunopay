@@ -18,7 +18,8 @@
 html { scroll-behavior: smooth; }
 body {
   font-family: 'DM Sans', sans-serif;
-  background: #000;
+  /* Use the site's dark theme color instead of pure black so header blends in */
+  background: var(--dark);
   color: #2d2d2d;
   overflow-x: hidden;
 }
@@ -42,21 +43,20 @@ body {
 
 .slide-overlay {
   position: absolute; inset: 0;
-  background: linear-gradient(160deg, rgba(17,26,16,0.80) 0%, rgba(58,107,48,0.55) 55%, rgba(232,160,0,0.20) 100%);
+  background: linear-gradient(160deg, rgba(17,26,16,0.55) 0%, rgba(58,107,48,0.35) 55%, rgba(232,160,0,0.12) 100%);
 }
 
 /* ========= NAV ========= */
 nav.mv-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  /* Make header participate in normal flow so it doesn't overlay content */
+  position: relative; z-index: 100;
   display: flex; justify-content: space-between; align-items: center;
-  padding: 1.4rem 5%;
-  background: linear-gradient(to bottom, rgba(17,26,16,0.88), transparent);
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
+  padding: 1.0rem 5%;
+  background: transparent;
 }
 .logo {
   font-family: 'Playfair Display', serif;
-  font-size: 1.7rem; font-weight: 900; color: #fff;
+  font-size: 1.7rem; font-weight: 900;
   display: flex; align-items: center; gap: 0.5rem; letter-spacing: -0.5px;
 }
 .logo-icon { color: var(--gold); font-size: 1.5rem; }
@@ -65,7 +65,7 @@ nav.mv-nav {
 
 .logo { display: flex; align-items: center; gap: 0.75rem; }
 .nav-logo-img { width: 44px; height: 44px; object-fit: contain; display: block; }
-.brand-text { font-weight: 700; font-size: 1.15rem; color: var(--dark); display: inline-block; }
+.brand-text { font-weight: 700; font-size: 1.15rem; color: var(--gold); display: inline-block; }
 .brand-text span { color: var(--green); }
 .nav-links a {
   color: rgba(255,255,255,0.85); text-decoration: none;

@@ -1,0 +1,250 @@
+openapi: 3.0.3
+info:
+  title: MavunoPay Backend API
+  version: '1.0.0'
+  description: |
+    OpenAPI documentation for the MavunoPay backend APIs. This contract supports RESTful integration with third-party agro-dealers, payment providers, and compliant mobile money gateways.
+servers:
+  - url: /
+    description: Local backend server
+paths:
+  /api/health:
+    get:
+      summary: Health check for backend availability
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+  /api/notifications:
+    get:
+      summary: Retrieve farmer notifications
+      parameters:
+        - in: query
+          name: farmerId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Notification list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationsResponse'
+    post:
+      summary: Mark a notification as read
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationAction'
+      responses:
+        '200':
+          description: Action succeeded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+  /api/cooperatives:
+    get:
+      summary: Retrieve cooperatives for a farmer
+      parameters:
+        - in: query
+          name: farmerId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Cooperative list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CooperativesResponse'
+    post:
+      summary: Create or join a cooperative
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CooperativeAction'
+      responses:
+        '200':
+          description: Cooperative action result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CooperativeResult'
+  /api/goals:
+    get:
+      summary: Retrieve goals for a farmer
+      parameters:
+        - in: query
+          name: farmerId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Goals list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  goals:
+                    type: array
+                    items:
+                      type: object
+  /api/transactions:
+    get:
+      summary: Retrieve transactions for a farmer
+      parameters:
+        - in: query
+          name: farmerId
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Transaction history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      type: object
+  /api/ussd:
+    post:
+      summary: USSD fallback gateway endpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sessionId:
+                  type: string
+                phoneNumber:
+                  type: string
+                text:
+                  type: string
+      responses:
+        '200':
+          description: USSD menu response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+                  endSession:
+                    type: boolean
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        service:
+          type: string
+        environment:
+          type: string
+        uptimeSeconds:
+          type: integer
+        timestamp:
+          type: string
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        farmerId:
+          type: string
+        title:
+          type: string
+        message:
+          type: string
+        read:
+          type: boolean
+        createdAt:
+          type: string
+    NotificationsResponse:
+      type: object
+      properties:
+        notifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notification'
+    NotificationAction:
+      type: object
+      properties:
+        id:
+          type: string
+        action:
+          type: string
+      required:
+        - id
+        - action
+    Cooperative:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        joinCode:
+          type: string
+        leaderId:
+          type: string
+        members:
+          type: array
+          items:
+            type: string
+        savingsBalance:
+          type: number
+        createdAt:
+          type: string
+    CooperativesResponse:
+      type: object
+      properties:
+        cooperatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/Cooperative'
+    CooperativeAction:
+      type: object
+      properties:
+        farmerId:
+          type: string
+        action:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        joinCode:
+          type: string
+      required:
+        - farmerId
+    CooperativeResult:
+      type: object
+      properties:
+        coop:
+          $ref: '#/components/schemas/Cooperative'
