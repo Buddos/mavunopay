@@ -1,0 +1,321 @@
+import { v as v4 } from "./wrapper-C1_KymC2.mjs";
+import { g as generateKeypair, f as fundAccountIfNeeded, c as createTrustline } from "./stellar-c7apZeDO.mjs";
+import { h as hashPin } from "./auth-Cnn8fTEl.mjs";
+import { u as useSupabase, e as ensureFarmersSchema, q as query, b as ensureGoalsSchema, i as insertAllocationRules } from "./db-C9kVyrmy.mjs";
+import { r as readLocalDb, w as writeLocalDb } from "./local-db-C03tS4Sk.mjs";
+import "../_libs/lodash.mjs";
+import "../_libs/function-bind.mjs";
+import "../_libs/debug.mjs";
+import "../_commonjsHelpers-CCIqAdii.mjs";
+import "crypto";
+import "tslib";
+import "buffer";
+import "../_libs/es-errors.mjs";
+import "../_libs/hasown.mjs";
+import "fs";
+import "path";
+import "os";
+import "http";
+import "https";
+import "url";
+import "stream";
+import "assert";
+import "zlib";
+import "events";
+import "util";
+import "net";
+import "tls";
+import "http2";
+import "node:fs";
+import "node:path";
+import "node:dns";
+import "util/types";
+import "dns";
+import "string_decoder";
+import "../_libs/ms.mjs";
+import "tty";
+import "../_libs/supports-color.mjs";
+import "../_libs/has-flag.mjs";
+const defaultAllocationRules = [
+  { key: "inputs", pct: 20 },
+  { key: "emergency", pct: 10 },
+  { key: "education", pct: 10 },
+  { key: "disposable", pct: 60 }
+];
+const SESSION_TTL_MS = 5 * 60 * 1e3;
+function normalizePhone(phone) {
+  return phone.trim();
+}
+function loadSession(sessionId) {
+  const db = readLocalDb();
+  const session = db.ussdSessions.find((s) => s.sessionId === sessionId);
+  if (!session) return null;
+  if (Date.now() - new Date(session.updatedAt).getTime() > SESSION_TTL_MS) {
+    return null;
+  }
+  return session;
+}
+function saveSession(session) {
+  const db = readLocalDb();
+  const existing = db.ussdSessions.find((s) => s.sessionId === session.sessionId);
+  if (existing) {
+    Object.assign(existing, session, { updatedAt: (/* @__PURE__ */ new Date()).toISOString() });
+  } else {
+    db.ussdSessions.push({ ...session, createdAt: (/* @__PURE__ */ new Date()).toISOString(), updatedAt: (/* @__PURE__ */ new Date()).toISOString() });
+  }
+  writeLocalDb(db);
+}
+function clearSession(sessionId) {
+  const db = readLocalDb();
+  db.ussdSessions = db.ussdSessions.filter((s) => s.sessionId !== sessionId);
+  writeLocalDb(db);
+}
+async function findFarmerByPhone(phone) {
+  const normalized = normalizePhone(phone);
+  if (useSupabase()) {
+    await ensureFarmersSchema();
+    const result = await query(
+      `SELECT id, phone, name, national_id AS "nationalId", stellar_public_key AS "stellarPublicKey", pin FROM farmers WHERE phone = $1 LIMIT 1`,
+      [normalized]
+    );
+    return result.rows[0] || null;
+  }
+  const db = readLocalDb();
+  return db.farmers.find((farmer) => farmer.phone === normalized) || null;
+}
+async function createFarmerAccount(phone, name, nationalId, pin) {
+  const normalized = normalizePhone(phone);
+  const existing = await findFarmerByPhone(normalized);
+  if (existing) {
+    return { farmer: existing, alreadyExists: true, funded: { funded: true, publicKey: existing.stellarPublicKey } };
+  }
+  const farmerId = v4();
+  const keys = generateKeypair();
+  const pinHash = hashPin(pin);
+  const farmer = {
+    id: farmerId,
+    phone: normalized,
+    name: name || null,
+    nationalId: nationalId || null,
+    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+    stellarPublicKey: keys.publicKey,
+    allocationRules: defaultAllocationRules,
+    creditScore: 560,
+    creditTier: "Bronze",
+    coopId: null,
+    coopRole: "member"
+  };
+  if (useSupabase()) {
+    await ensureFarmersSchema();
+    await ensureGoalsSchema();
+    await query(
+      `INSERT INTO farmers (id, phone, name, national_id, pin, stellar_public_key, created_at, credit_score, credit_tier, coop_id, coop_role)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
+      [farmerId, normalized, name, nationalId || null, pinHash, keys.publicKey, farmer.createdAt, 560, "Bronze", null, "member"]
+    );
+    await insertAllocationRules(farmerId, defaultAllocationRules);
+  } else {
+    const db = readLocalDb();
+    db.farmers.push({ ...farmer, pin: pinHash });
+    writeLocalDb(db);
+  }
+  const funded = await fundAccountIfNeeded(keys.publicKey, farmerId, keys.secret);
+  if (process.env.USDC_ISSUER && process.env.USDC_CODE) {
+    await createTrustline(farmerId, process.env.USDC_CODE, process.env.USDC_ISSUER);
+  }
+  return { farmer, funded };
+}
+async function getGoalsForFarmer(farmerId) {
+  if (useSupabase()) {
+    const result = await query(
+      `SELECT id, name, balance, target_amount AS "targetAmount", currency FROM goals WHERE farmer_id = $1 ORDER BY created_at DESC`,
+      [farmerId]
+    );
+    return result.rows;
+  }
+  const db = readLocalDb();
+  return db.goals.filter((goal) => goal.farmerId === farmerId);
+}
+async function createGoalForFarmer(farmerId, name, targetAmount) {
+  if (useSupabase()) {
+    const id = v4();
+    const createdAt = (/* @__PURE__ */ new Date()).toISOString();
+    await query(
+      `INSERT INTO goals (id, farmer_id, name, target_amount, balance, currency, created_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [id, farmerId, name, targetAmount, 0, "KES", createdAt]
+    );
+    return { id, name, targetAmount, balance: 0, currency: "KES" };
+  }
+  const db = readLocalDb();
+  const goal = {
+    id: v4(),
+    farmerId,
+    name,
+    targetAmount,
+    balance: 0,
+    currency: "KES",
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  db.goals.push(goal);
+  writeLocalDb(db);
+  return goal;
+}
+function formatCurrency(value) {
+  return `KES ${value.toFixed(0)}`;
+}
+function buildMainMenu() {
+  return "MavunoPay USSD:\n1. Register\n2. Check savings\n3. Create goal";
+}
+async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+  const raw = req.body;
+  (req.headers["content-type"] || "").toString();
+  if (raw && (raw.serviceCode || raw.sessionId) && raw.phoneNumber) ;
+  else if (raw && (raw.From || raw.Body)) ;
+  const sessionId = raw.sessionId || raw.SessionId || raw.session || v4();
+  const phoneNumber = raw.phoneNumber || raw.PhoneNumber || raw.From || raw.from || "";
+  const text = (raw.text || raw.Text || raw.Body || raw.body || "").toString();
+  if (!sessionId || !phoneNumber) {
+    return res.status(400).json({ error: "sessionId and phoneNumber are required" });
+  }
+  const normalizedPhone = normalizePhone(phoneNumber);
+  const input = (text || "").trim();
+  let session = loadSession(sessionId);
+  if (!session) {
+    session = {
+      sessionId,
+      phoneNumber: normalizedPhone,
+      step: "MENU",
+      createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+      updatedAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+  }
+  let response = "";
+  let endSession = false;
+  const farmer = await findFarmerByPhone(normalizedPhone);
+  if (session.step === "MENU") {
+    if (!input) {
+      response = buildMainMenu();
+    } else {
+      switch (input) {
+        case "1":
+          session.step = "REGISTER_NAME";
+          session.action = "register";
+          response = "Register with MavunoPay. Enter your full name:";
+          break;
+        case "2":
+          if (!farmer) {
+            response = "No account found for this number. Reply 1 to register.";
+            endSession = true;
+          } else {
+            const goals = await getGoalsForFarmer(farmer.id);
+            const totalSaved = goals.reduce((sum, goal) => sum + Number(goal.balance || 0), 0);
+            const goalLines = goals.slice(0, 3).map((goal) => `${goal.name}: ${formatCurrency(Number(goal.balance || 0))}`).join("\n");
+            response = `Savings summary for ${farmer.name || "farmer"}:
+Total saved: ${formatCurrency(totalSaved)}`;
+            if (goalLines) {
+              response += `
+${goalLines}`;
+            }
+            response += "\nReply 3 to create a new goal next time.";
+            endSession = true;
+          }
+          break;
+        case "3":
+          if (!farmer) {
+            response = "You need an account first. Reply 1 to register.";
+            endSession = true;
+          } else {
+            session.action = "goal";
+            session.step = "CREATE_GOAL_NAME";
+            response = "Create a savings goal. Enter the goal name:";
+          }
+          break;
+        default:
+          response = "Invalid option. Reply with 1, 2, or 3.";
+          break;
+      }
+    }
+  } else if (session.step === "REGISTER_NAME") {
+    if (!input) {
+      response = "Please enter your full name to continue registration:";
+    } else {
+      session.name = input;
+      session.step = "REGISTER_PIN";
+      response = "Enter a 4-digit PIN for your MavunoPay account:";
+    }
+  } else if (session.step === "REGISTER_PIN") {
+    if (!/^[0-9]{4}$/.test(input)) {
+      response = "PIN must be exactly 4 digits. Enter a 4-digit PIN:";
+    } else {
+      session.pin = input;
+      session.step = "REGISTER_NATIONAL_ID";
+      response = "Enter your National ID or type 0 to skip:";
+    }
+  } else if (session.step === "REGISTER_NATIONAL_ID") {
+    const nationalId = input === "0" ? null : input;
+    const name = session.name || "Farmer";
+    const pin = session.pin || "0000";
+    const registration = await createFarmerAccount(normalizedPhone, name, nationalId, pin);
+    if (registration.alreadyExists) {
+      response = "This phone number is already registered. Dial again to check savings or create a goal.";
+    } else {
+      response = `Registration complete. Welcome ${name}! Your account is now ready.`;
+      if (!registration.funded.funded) {
+        response += " Funding is pending; please contact your agent.";
+      }
+    }
+    endSession = true;
+    clearSession(session.sessionId);
+  } else if (session.step === "CREATE_GOAL_NAME") {
+    if (!input) {
+      response = "Please enter the name of your savings goal:";
+    } else {
+      session.goalName = input;
+      session.step = "CREATE_GOAL_TARGET";
+      response = "Enter target amount in KES for this goal:";
+    }
+  } else if (session.step === "CREATE_GOAL_TARGET") {
+    const target = Number(input.replace(/[^0-9.]/g, ""));
+    if (Number.isNaN(target) || target <= 0) {
+      response = "Amount must be a valid number greater than zero. Enter the target amount in KES:";
+    } else if (!farmer) {
+      response = "We could not find your account. Reply 1 to register.";
+      endSession = true;
+    } else {
+      const goal = await createGoalForFarmer(farmer.id, session.goalName || "New Goal", target);
+      response = `Goal created: ${goal.name} with target ${formatCurrency(target)}.`;
+      endSession = true;
+      clearSession(session.sessionId);
+    }
+  }
+  if (!endSession) {
+    session.updatedAt = (/* @__PURE__ */ new Date()).toISOString();
+    saveSession(session);
+  } else {
+    clearSession(session.sessionId);
+  }
+  if (!response) {
+    response = buildMainMenu();
+  }
+  function escapeXml(unsafe) {
+    return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+  }
+  if (req.body && (req.body.serviceCode || req.body.sessionId || req.body.phoneNumber)) {
+    const prefix = endSession ? "END " : "CON ";
+    res.setHeader("Content-Type", "text/plain; charset=utf-8");
+    return res.status(200).send(prefix + response);
+  }
+  if (req.body && (req.body.From || req.body.Body)) {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${escapeXml(response)}</Message></Response>`;
+    res.setHeader("Content-Type", "text/xml; charset=utf-8");
+    return res.status(200).send(xml);
+  }
+  return res.status(200).json({ response, endSession });
+}
+export {
+  handler as default
+};

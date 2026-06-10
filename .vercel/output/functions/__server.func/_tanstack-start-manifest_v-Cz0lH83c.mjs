@@ -1,0 +1,4 @@
+const tsrStartManifest = () => ({ routes: { __root__: { filePath: "/home/bonface/Documents/mavunopay/src/routes/__root.tsx", children: ["/", "/cooperative", "/dashboard", "/goals", "/login", "/profile", "/signup", "/transactions"], preloads: ["/assets/index-DXnWysQ0.js"], scripts: [{ attrs: { type: "module", async: true, src: "/assets/index-DXnWysQ0.js" } }] }, "/": { filePath: "/home/bonface/Documents/mavunopay/src/routes/index.tsx", children: void 0, preloads: ["/assets/index-Dv0bsROK.js"] }, "/goals": { filePath: "/home/bonface/Documents/mavunopay/src/routes/goals.tsx", children: void 0, preloads: ["/assets/goals-B4vsfATX.js"] }, "/login": { filePath: "/home/bonface/Documents/mavunopay/src/routes/login.tsx", children: void 0, preloads: ["/assets/login-D46FRzBG.js"] }, "/signup": { filePath: "/home/bonface/Documents/mavunopay/src/routes/signup.tsx", children: void 0, preloads: ["/assets/signup-B7aXMjbG.js"] } } });
+export {
+  tsrStartManifest
+};
