@@ -1,0 +1,10 @@
+.git
+.gitignore
+README.md
+node_modules
+.env.example
+.env.local
+.DS_Store
+.turbo
+dist
+.output
