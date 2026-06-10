@@ -35,3 +35,4 @@ backend/.env.local
 *.njsproj
 *.sln
 *.sw?
+.vercel/
