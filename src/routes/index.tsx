@@ -1,24 +1,54 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
-// Prefer local hero images (place the attached images under `public/assets/hero/`)
-const LOCAL_SLIDES = [
-  "/assets/hero/coffee-01.jpg",
-  "/assets/hero/coffee-02.jpg",
-  "/assets/hero/maize-01.jpg",
-  "/assets/hero/farmer-01.jpg",
-  "/assets/hero/farmer-02.jpg",
-];
-
-const FALLBACK_SLIDES: string[] = [
-  "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1920&q=80",
-  "https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&w=1920&q=80",
-  "https://images.unsplash.com/photo-1530267981375-f0de937f5f13?auto=format&fit=crop&w=1920&q=80",
-  "https://images.unsplash.com/photo-1592982537447-7440770cbfc9?auto=format&fit=crop&w=1920&q=80",
-];
-
-// Runtime slides: we'll try to use local images first (if uploaded), otherwise fall back to remote
-let SLIDES: string[] = FALLBACK_SLIDES.slice();
+const HERO_SLIDES = [
+  {
+    src: "/assets/hero/coffee-cherries.png",
+    alt: "Ripe red and green coffee cherries on the branch",
+  },
+  {
+    src: "/assets/hero/coffee-farmer-phone.png",
+    alt: "Coffee farmer using a smartphone to monitor crop health",
+  },
+  {
+    src: "/assets/hero/coffee-harvest-woman.png",
+    alt: "Woman harvesting ripe coffee cherries in a plantation",
+  },
+  {
+    src: "/assets/hero/coffee-harvest-basin.png",
+    alt: "Smiling coffee farmer collecting cherries in a metal basin",
+  },
+  { src: "/assets/hero/maize-field.png", alt: "Healthy green maize plants growing in a field" },
+  {
+    src: "/assets/hero/farmer-cassava-phone.png",
+    alt: "Farmer checking a mobile phone in a cassava field",
+  },
+  {
+    src: "/assets/hero/harvest-grain-drying.png",
+    alt: "Farmers drying harvested grain in the sun",
+  },
+  {
+    src: "/assets/hero/tea-plantation.png",
+    alt: "Tea pickers working on a lush hillside plantation",
+  },
+  { src: "/assets/hero/tea-leaves.png", alt: "Fresh green tea leaves glistening with dew" },
+  {
+    src: "/assets/hero/farmer-maize-phone.png",
+    alt: "Elderly farmer using a mobile phone in a maize field",
+  },
+  {
+    src: "/assets/hero/corn-seed-demo.png",
+    alt: "High-yield corn seed variety in a demonstration plot",
+  },
+  {
+    src: "/assets/hero/corn-field-sign.png",
+    alt: "Corn crop field with agricultural seed signage",
+  },
+  {
+    src: "/assets/hero/farmer-potato-field.png",
+    alt: "Farmer tending potato crops with a hand hoe",
+  },
+] as const;
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,8 +62,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "MavunoPay — Harvest Your Future" },
       {
         property: "og:description",
-        content:
-          "Blockchain-powered savings for smallholder farmers. No bank account needed.",
+        content: "Blockchain-powered savings for smallholder farmers. No bank account needed.",
       },
     ],
     links: [
@@ -53,7 +82,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const total = SLIDES.length;
+  const total = HERO_SLIDES.length;
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
@@ -61,52 +90,39 @@ function Home() {
     return () => clearInterval(id);
   }, [total]);
 
-  // Try to preload local images; if they exist, use them instead of the remote fallbacks
-  useEffect(() => {
-    let mounted = true;
-    const tryLocal = async () => {
-      const loaded: string[] = [];
-      for (const path of LOCAL_SLIDES) {
-        // attempt to load
-        await new Promise<void>((resolve) => {
-          const img = new Image();
-          img.onload = () => {
-            loaded.push(path);
-            resolve();
-          };
-          img.onerror = () => resolve();
-          img.src = path + "?t=" + Date.now();
-        });
-      }
-      if (mounted && loaded.length > 0) {
-        SLIDES = loaded.concat(FALLBACK_SLIDES).slice(0, Math.max(4, loaded.length));
-        setCurrent(0);
-      }
-    };
-    tryLocal();
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
   const pad = (n: number) => String(n).padStart(2, "0");
 
   return (
     <>
       {/* Minimal header: logo and brand only */}
-      <header className="mv-header" style={{ display: "flex", alignItems: "center", padding: "1rem", justifyContent: "flex-start" }}>
+      <header
+        className="mv-header"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          padding: "1rem",
+          justifyContent: "flex-start",
+        }}
+      >
         <div className="logo" style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-          <img src="/mavunopay-logo.svg" alt="MavunoPay" className="nav-logo-img" style={{ height: 46 }} />
-          <span className="brand-text">Mavuno<span>Pay</span></span>
+          <img
+            src="/mavunopay-logo.png"
+            alt="MavunoPay"
+            className="nav-logo-img"
+            style={{ height: 46 }}
+          />
+          <span className="brand-text">
+            Mavuno<span>Pay</span>
+          </span>
         </div>
       </header>
 
       {/* HERO SLIDESHOW */}
       <div className="slideshow-wrap">
         <div className="slides">
-          {SLIDES.map((src, i) => (
-            <div key={i} className={`slide${i === current ? " active" : ""}`}>
-              <img src={src} alt="Hero slide" className="slide-img" />
+          {HERO_SLIDES.map((slide, i) => (
+            <div key={slide.src} className={`slide${i === current ? " active" : ""}`}>
+              <img src={slide.src} alt={slide.alt} className="slide-img" />
             </div>
           ))}
         </div>
@@ -117,12 +133,13 @@ function Home() {
             <i className="fas fa-seedling" /> Built for Kenya's Farmers
           </div>
           <h1 className="hero-title">
-            Your Harvest,<br />
+            Your Harvest,
+            <br />
             <em>Your Wealth.</em>
           </h1>
           <p className="hero-sub">
-            Turn your farm produce into savings, credit, and financial freedom —
-            powered by Stellar blockchain. No bank account needed.
+            Turn your farm produce into savings, credit, and financial freedom — powered by Stellar
+            blockchain. No bank account needed.
           </p>
           <div className="hero-btns">
             <a href="/signup" className="btn-gold">
@@ -135,7 +152,7 @@ function Home() {
         </div>
 
         <div className="slide-dots">
-          {SLIDES.map((_, i) => (
+          {HERO_SLIDES.map((_, i) => (
             <button
               key={i}
               aria-label={`Go to slide ${i + 1}`}
@@ -154,33 +171,19 @@ function Home() {
         </div>
       </div>
 
-      {/* Replace stats with proxy/CORS instructions per request */}
-      <div className="stats-strip" style={{ padding: "2rem", background: "#fafafa", textAlign: "center" }}>
-        <p style={{ maxWidth: 900, margin: "0 auto", color: "#333" }}>
-          If you prefer the other approach (no proxy), change fetch calls back to the full backend URL and enable CORS on the server. Example server-side (Express) CORS snippet:
-        </p>
-        <pre style={{ background: "#111", color: "#f7f7f7", padding: "1rem", marginTop: "1rem", overflowX: "auto", maxWidth: 900, marginLeft: "auto", marginRight: "auto", borderRadius: 6 }}>
-{`// npm install express cors
-const express = require('express');
-const cors = require('cors');
-const app = express();
-
-app.use(cors({
-  origin: 'http://localhost:5173',
-  credentials: true,
-}));
-app.options('*', cors());
-
-app.use(express.json());
-
-app.post('/api/request-otp', (req, res) => {
-  // handle OTP request
-  res.json({ ok: true });
-});
-
-app.listen(3001, () => console.log('Backend listening on http://localhost:3001'));
-`}
-        </pre>
+      <div className="stats-strip">
+        <div className="stat">
+          <div className="stat-num">10K+</div>
+          <div className="stat-label">Farmers onboarded</div>
+        </div>
+        <div className="stat">
+          <div className="stat-num">KES 50M+</div>
+          <div className="stat-label">Harvest savings</div>
+        </div>
+        <div className="stat">
+          <div className="stat-num">98%</div>
+          <div className="stat-label">Goal completion</div>
+        </div>
       </div>
 
       {/* FEATURES */}
@@ -188,7 +191,9 @@ app.listen(3001, () => console.log('Backend listening on http://localhost:3001')
         <div className="section-head">
           <div className="section-tag">Why MavunoPay</div>
           <h2>
-            Everything you need,<br />nothing you don't
+            Everything you need,
+            <br />
+            nothing you don't
           </h2>
         </div>
         <div className="feature-grid">
@@ -228,7 +233,6 @@ app.listen(3001, () => console.log('Backend listening on http://localhost:3001')
       {/* HOW */}
       <section className="how" id="how">
         <div className="section-head">
-        
           <h2>Field to Future in 4 steps</h2>
         </div>
         <div className="steps-row">
@@ -250,7 +254,9 @@ app.listen(3001, () => console.log('Backend listening on http://localhost:3001')
       {/* CTA */}
       <section className="cta-section" id="farmers">
         <h2>
-          Ready to Harvest<br />Your Financial Future?
+          Ready to Harvest
+          <br />
+          Your Financial Future?
         </h2>
         <p>Join thousands of Kenyan farmers turning their harvest into lasting wealth.</p>
         <a href="/signup" className="btn-gold hero-cta">
@@ -260,10 +266,18 @@ app.listen(3001, () => console.log('Backend listening on http://localhost:3001')
 
       {/* TRUST */}
       <div className="trust-bar">
-        <div className="trust-item"><i className="fas fa-shield-alt" /> Stellar Blockchain Secured</div>
-        <div className="trust-item"><i className="fas fa-mobile-alt" /> M-Pesa & Airtel Ready</div>
-        <div className="trust-item"><i className="fas fa-check-circle" /> CBK Compliant</div>
-        <div className="trust-item"><i className="fas fa-lock" /> Bank-Grade Encryption</div>
+        <div className="trust-item">
+          <i className="fas fa-shield-alt" /> Stellar Blockchain Secured
+        </div>
+        <div className="trust-item">
+          <i className="fas fa-mobile-alt" /> M-Pesa & Airtel Ready
+        </div>
+        <div className="trust-item">
+          <i className="fas fa-check-circle" /> CBK Compliant
+        </div>
+        <div className="trust-item">
+          <i className="fas fa-lock" /> Bank-Grade Encryption
+        </div>
       </div>
 
       {/* FOOTER */}

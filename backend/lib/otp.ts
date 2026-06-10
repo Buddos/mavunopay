@@ -1,10 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 import { query, useSupabase } from './db';
+import { getDataDir } from './data-dir';
 import { v4 as uuidv4 } from 'uuid';
 
-const OTP_DIR = path.join(process.cwd(), 'data');
-const OTP_DB = path.join(OTP_DIR, 'otps.json');
+function getOtpDbPath() {
+  return path.join(getDataDir(), 'otps.json');
+}
 
 export interface OtpRecord {
   id: string;
@@ -21,22 +23,33 @@ function normalizePhone(phone: string) {
   return phone.trim();
 }
 
+/** Generate a 4-digit numeric OTP (1000–9999). */
+export function generateOtpCode() {
+  return String(Math.floor(1000 + Math.random() * 9000));
+}
+
+export function isValidOtpCode(code: string) {
+  return /^\d{4}$/.test(code.trim());
+}
+
 function ensureOtpFile() {
-  if (!fs.existsSync(OTP_DIR)) {
-    fs.mkdirSync(OTP_DIR, { recursive: true });
+  const otpDb = getOtpDbPath();
+  const otpDir = path.dirname(otpDb);
+  if (!fs.existsSync(otpDir)) {
+    fs.mkdirSync(otpDir, { recursive: true });
   }
-  if (!fs.existsSync(OTP_DB)) {
-    fs.writeFileSync(OTP_DB, JSON.stringify({ otps: [] }, null, 2));
+  if (!fs.existsSync(otpDb)) {
+    fs.writeFileSync(otpDb, JSON.stringify({ otps: [] }, null, 2));
   }
 }
 
 function readLocalOtps(): LocalOtpStore {
   ensureOtpFile();
-  return JSON.parse(fs.readFileSync(OTP_DB, 'utf-8')) as LocalOtpStore;
+  return JSON.parse(fs.readFileSync(getOtpDbPath(), 'utf-8')) as LocalOtpStore;
 }
 
 function writeLocalOtps(data: LocalOtpStore) {
-  fs.writeFileSync(OTP_DB, JSON.stringify(data, null, 2));
+  fs.writeFileSync(getOtpDbPath(), JSON.stringify(data, null, 2));
 }
 
 export async function ensureOtpSchema() {
@@ -61,6 +74,7 @@ export async function createOtp(phone: string, code: string, minutes = 10) {
 
   if (useSupabase()) {
     await ensureOtpSchema();
+    await query(`UPDATE otps SET used = true WHERE phone = $1 AND used = false`, [normalizedPhone]);
     await query(
       `INSERT INTO otps (id, phone, code, expires_at, used, created_at)
        VALUES ($1, $2, $3, $4, false, now())`,
@@ -91,11 +105,11 @@ export async function verifyOtp(phone: string, code: string) {
       `SELECT id, code, expires_at, used FROM otps WHERE phone = $1 AND used = false AND expires_at > now() ORDER BY created_at DESC LIMIT 1`,
       [normalizedPhone]
     );
-    const otpRow = result.rows?.[0] as OtpRecord | undefined;
+    const otpRow = result.rows?.[0] as { id: string; code: string } | undefined;
     if (!otpRow) {
       return { valid: false, reason: 'No active OTP found or it has expired' };
     }
-    if (otpRow.code !== code) {
+    if (otpRow.code !== code.trim()) {
       return { valid: false, reason: 'Invalid OTP' };
     }
     await query(`UPDATE otps SET used = true WHERE id = $1`, [otpRow.id]);

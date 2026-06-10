@@ -2,7 +2,13 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { v4 as uuidv4 } from 'uuid';
 import { generateKeypair, fundAccountIfNeeded, createTrustline } from '../../lib/stellar';
 import { hashPin } from '../../lib/auth';
-import { query, useSupabase, ensureFarmersSchema, ensureGoalsSchema } from '../../lib/db';
+import {
+  ensureFarmersSchema,
+  ensureGoalsSchema,
+  insertAllocationRules,
+  query,
+  useSupabase,
+} from '../../lib/db';
 import { readLocalDb, writeLocalDb } from '../../lib/local-db';
 
 const defaultAllocationRules = [
@@ -104,9 +110,7 @@ async function createFarmerAccount(phone: string, name: string, nationalId: stri
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
       [farmerId, normalized, name || null, nationalId || null, pinHash, keys.publicKey, farmer.createdAt, 560, 'Bronze', null, 'member']
     );
-    for (const rule of defaultAllocationRules) {
-      await query(`INSERT INTO allocation_rules (farmer_id, key, pct) VALUES ($1, $2, $3)`, [farmerId, rule.key, rule.pct]);
-    }
+    await insertAllocationRules(farmerId, defaultAllocationRules);
   } else {
     const db = readLocalDb();
     db.farmers.push({ ...farmer, pin: pinHash });

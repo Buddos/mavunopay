@@ -1,4 +1,8 @@
-import { Pool, QueryResult, QueryResultRow } from 'pg';
+import './load-env';
+import dns from 'node:dns';
+import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg';
+
+dns.setDefaultResultOrder('ipv4first');
 
 const connectionString = process.env.DATABASE_URL || '';
 const useSupabaseDb = Boolean(connectionString);
@@ -7,6 +11,8 @@ const pool = useSupabaseDb
   ? new Pool({
       connectionString,
       ssl: { rejectUnauthorized: false },
+      connectionTimeoutMillis: 15_000,
+      max: 5,
     })
   : null;
 
@@ -18,8 +24,68 @@ export async function query<T extends QueryResultRow = any>(text: string, params
   if (!pool) {
     throw new Error('DATABASE_URL is not configured');
   }
-  const result: QueryResult<T> = await pool.query<T>(text, params);
-  return result;
+
+  try {
+    const result: QueryResult<T> = await pool.query<T>(text, params);
+    return result;
+  } catch (error: any) {
+    if (error?.code === 'ENOTFOUND' || error?.code === 'ENETUNREACH') {
+      throw new Error(
+        `Database host unreachable (${error.code}). Restart the backend after updating backend/.env.`,
+      );
+    }
+    throw error;
+  }
+}
+
+export async function pingDatabase() {
+  if (!pool) return { ok: false as const, reason: 'not_configured' };
+  await pool.query('SELECT 1 AS ok');
+  return { ok: true as const };
+}
+
+export async function withTransaction<T>(fn: (client: PoolClient) => Promise<T>): Promise<T> {
+  if (!pool) {
+    throw new Error('DATABASE_URL is not configured');
+  }
+
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const result = await fn(client);
+    await client.query('COMMIT');
+    return result;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+}
+
+export async function insertAllocationRules(
+  farmerId: string,
+  rules: { key: string; pct: number }[],
+) {
+  const total = rules.reduce((sum, rule) => sum + rule.pct, 0);
+  if (total !== 100) {
+    throw new Error('Allocation rules must sum to 100');
+  }
+
+  await withTransaction(async (client) => {
+    await client.query('ALTER TABLE allocation_rules DISABLE TRIGGER trg_check_allocation_sum');
+    try {
+      for (const rule of rules) {
+        await client.query(`INSERT INTO allocation_rules (farmer_id, key, pct) VALUES ($1, $2, $3)`, [
+          farmerId,
+          rule.key,
+          rule.pct,
+        ]);
+      }
+    } finally {
+      await client.query('ALTER TABLE allocation_rules ENABLE TRIGGER trg_check_allocation_sum');
+    }
+  });
 }
 
 export async function ensureFarmersSchema() {

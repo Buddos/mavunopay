@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { withCors } from '../../lib/cors';
-import { verifyOtp } from '../../lib/otp';
+import { isValidOtpCode, verifyOtp } from '../../lib/otp';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -14,6 +14,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   if (!otp || typeof otp !== 'string' || !otp.trim()) {
     return res.status(400).json({ error: 'OTP is required' });
+  }
+
+  if (!isValidOtpCode(otp)) {
+    return res.status(400).json({ error: 'OTP must be exactly 4 digits' });
   }
 
   const result = await verifyOtp(phone, otp);

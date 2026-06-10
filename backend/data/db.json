@@ -76,6 +76,37 @@
         }
       ],
       "pin": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"
+    },
+    {
+      "id": "172c0876-c91f-4ee1-990f-f6283717d063",
+      "phone": "+254798507863",
+      "name": "Test Farmer",
+      "nationalId": null,
+      "createdAt": "2026-06-10T13:35:24.214Z",
+      "stellarPublicKey": "GATFGHJG2JCG57H3MOFOMECRCUMUXDFWI2UGLETPVNZRB4MR7S4VF67A",
+      "allocationRules": [
+        {
+          "key": "inputs",
+          "pct": 20
+        },
+        {
+          "key": "emergency",
+          "pct": 10
+        },
+        {
+          "key": "education",
+          "pct": 10
+        },
+        {
+          "key": "disposable",
+          "pct": 60
+        }
+      ],
+      "creditScore": 560,
+      "creditTier": "Bronze",
+      "coopId": null,
+      "coopRole": "member",
+      "pin": "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"
     }
   ],
   "goals": [],
@@ -83,5 +114,6 @@
   "cooperatives": [],
   "withdrawalRequests": [],
   "notifications": [],
-  "loans": []
+  "loans": [],
+  "ussdSessions": []
 }

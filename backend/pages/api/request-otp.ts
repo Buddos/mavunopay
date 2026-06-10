@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { withCors } from '../../lib/cors';
-import { createOtp } from '../../lib/otp';
+import { createOtp, generateOtpCode } from '../../lib/otp';
 
 async function sendOtpSms(phone: string, code: string) {
   if (process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_FROM_NUMBER) {
@@ -40,7 +40,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const normalizedPhone = phone.trim();
-  const code = Math.floor(100000 + Math.random() * 900000).toString();
+  const code = generateOtpCode();
 
   try {
     await createOtp(normalizedPhone, code, 10);

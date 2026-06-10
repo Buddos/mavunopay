@@ -1,9 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-
-// Use a full backend URL when not using a dev proxy. Configure with Vite env var `VITE_BACKEND_URL`.
-// When empty, fetches will use relative `/api/*` paths so the frontend talks to the same origin.
-const BACKEND = (import.meta.env.VITE_BACKEND_URL as string) || "";
+import { apiUrl } from "@/lib/api";
 
 export const Route = createFileRoute("/signup")({
   head: () => ({
@@ -40,9 +37,10 @@ function SignupPage() {
   }, []);
 
   const handleError = (error: any) => {
-    const text = error?.message && String(error.message).includes("Failed to fetch")
-      ? "Unable to reach authentication server. Please ensure the backend is running."
-      : error.message || "An error occurred";
+    const text =
+      error?.message && String(error.message).includes("Failed to fetch")
+        ? "Unable to reach authentication server. Please ensure the backend is running."
+        : error.message || "An error occurred";
     setMessage({ type: "error", text });
   };
 
@@ -74,7 +72,7 @@ function SignupPage() {
     setLoading(true);
     setMessage(null);
     try {
-      const res = await fetch(`${BACKEND}/api/request-otp`, {
+      const res = await fetch(apiUrl("/api/request-otp"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone }),
@@ -96,11 +94,15 @@ function SignupPage() {
       handleError(new Error("Please enter the OTP"));
       return;
     }
+    if (!/^\d{4}$/.test(otp.trim())) {
+      handleError(new Error("OTP must be exactly 4 digits"));
+      return;
+    }
 
     setLoading(true);
     setMessage(null);
     try {
-      const verify = await fetch(`${BACKEND}/api/verify-otp`, {
+      const verify = await fetch(apiUrl("/api/verify-otp"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, otp }),
@@ -108,7 +110,7 @@ function SignupPage() {
       const verifyPayload = await verify.json();
       if (!verify.ok) throw new Error(verifyPayload.error || "Invalid OTP");
 
-      const res = await fetch(`${BACKEND}/api/register`, {
+      const res = await fetch(apiUrl("/api/register"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, name: fullName, pin }),
@@ -127,11 +129,25 @@ function SignupPage() {
   return (
     <>
       {/* NAV */}
-      <nav className={`mv-nav ${collapsed ? "collapsed" : ""}`} style={{ background: "transparent" }}>
+      <nav
+        className={`mv-nav ${collapsed ? "collapsed" : ""}`}
+        style={{ background: "transparent" }}
+      >
         <div className="logo">
-          <a href="/" style={{ textDecoration: "none", color: "inherit", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <img src="/mavunopay-logo.svg" alt="MavunoPay" className="nav-logo-img" />
-            <span className="brand-text">Mavuno<span>Pay</span></span>
+          <a
+            href="/"
+            style={{
+              textDecoration: "none",
+              color: "inherit",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+            }}
+          >
+            <img src="/mavunopay-logo.png" alt="MavunoPay" className="nav-logo-img" />
+            <span className="brand-text">
+              Mavuno<span>Pay</span>
+            </span>
           </a>
         </div>
       </nav>
@@ -145,7 +161,15 @@ function SignupPage() {
       `}</style>
 
       {/* SIGNUP SECTION */}
-      <section className="auth-section" style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <section
+        className="auth-section"
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <div className="auth-panel" style={{ maxWidth: "400px", width: "100%" }}>
           <div className="auth-copy">
             <h2 style={{ marginBottom: "0.5rem" }}>Sign up as a farmer</h2>
@@ -205,7 +229,12 @@ function SignupPage() {
                     />
                   </div>
                   <div className="auth-footer">
-                    <button type="button" className="btn-gold" onClick={requestOTP} disabled={loading}>
+                    <button
+                      type="button"
+                      className="btn-gold"
+                      onClick={requestOTP}
+                      disabled={loading}
+                    >
                       {loading ? "Sending code..." : "Send code"}
                     </button>
                   </div>
@@ -222,16 +251,31 @@ function SignupPage() {
                       type="text"
                       value={otp}
                       onChange={(e) => setOtp(e.target.value)}
-                      placeholder="6-digit code"
+                      placeholder="4-digit code"
                       disabled={loading}
-                      maxLength={6}
+                      maxLength={4}
+                      inputMode="numeric"
+                      pattern="[0-9]{4}"
                     />
                   </div>
                   <div className="auth-footer">
-                    <button type="button" className="btn-gold" onClick={completeSignup} disabled={loading}>
+                    <button
+                      type="button"
+                      className="btn-gold"
+                      onClick={completeSignup}
+                      disabled={loading}
+                    >
                       {loading ? "Creating account..." : "Create account"}
                     </button>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", flexWrap: "wrap", marginTop: "1rem" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: "1rem",
+                        flexWrap: "wrap",
+                        marginTop: "1rem",
+                      }}
+                    >
                       <button
                         type="button"
                         className="btn-ghost"
@@ -280,37 +324,68 @@ function SignupPage() {
                 <div
                   className="auth-note"
                   style={{
-                    backgroundColor: '#f7f7f7',
-                    border: '1px solid #e5e7eb',
-                    color: '#1f2937',
-                    marginTop: '1rem',
-                    padding: '0.75rem',
-                    borderRadius: '0.5rem',
+                    backgroundColor: "#f7f7f7",
+                    border: "1px solid #e5e7eb",
+                    color: "#1f2937",
+                    marginTop: "1rem",
+                    padding: "0.75rem",
+                    borderRadius: "0.5rem",
                   }}
                 >
                   <strong>OTP Preview:</strong> {otpPreview}
-                  <div style={{ marginTop: '0.25rem', color: '#6b7280' }}>
+                  <div style={{ marginTop: "0.25rem", color: "#6b7280" }}>
                     This preview is shown when SMS delivery is not configured.
                   </div>
                 </div>
               )}
 
-              {message && message.type === "error" && String(message.text).includes("Unable to reach authentication server") && (
-                <div style={{ marginTop: "0.5rem", textAlign: "center" }}>
-                  {step === "info" ? (
-                    <button type="button" className="btn-ghost" onClick={requestOTP} style={{ padding: "0.5rem 1rem" }}>Try again</button>
-                  ) : step === "otp" ? (
-                    <button type="button" className="btn-ghost" onClick={completeSignup} style={{ padding: "0.5rem 1rem" }}>Try again</button>
-                  ) : null}
-                </div>
-              )}
+              {message &&
+                message.type === "error" &&
+                String(message.text).includes("Unable to reach authentication server") && (
+                  <div style={{ marginTop: "0.5rem", textAlign: "center" }}>
+                    {step === "info" ? (
+                      <button
+                        type="button"
+                        className="btn-ghost"
+                        onClick={requestOTP}
+                        style={{ padding: "0.5rem 1rem" }}
+                      >
+                        Try again
+                      </button>
+                    ) : step === "otp" ? (
+                      <button
+                        type="button"
+                        className="btn-ghost"
+                        onClick={completeSignup}
+                        style={{ padding: "0.5rem 1rem" }}
+                      >
+                        Try again
+                      </button>
+                    ) : null}
+                  </div>
+                )}
 
               {/* STEP INDICATOR */}
-              <div style={{ marginTop: "2rem", textAlign: "center", color: "#999", fontSize: "0.9rem" }}>
+              <div
+                style={{
+                  marginTop: "2rem",
+                  textAlign: "center",
+                  color: "#999",
+                  fontSize: "0.9rem",
+                }}
+              >
                 Step {["info", "otp"].indexOf(step) + 1} of 2
               </div>
 
-              <div style={{ marginTop: "1rem", display: "flex", justifyContent: "center", gap: "1rem", alignItems: "center" }}>
+              <div
+                style={{
+                  marginTop: "1rem",
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: "1rem",
+                  alignItems: "center",
+                }}
+              >
                 <a
                   href="/"
                   className="btn-ghost"
@@ -324,7 +399,9 @@ function SignupPage() {
                   Home
                 </a>
                 <span style={{ color: "#ccc" }}>|</span>
-                <a href="/login" style={{ color: "#d4af37"}}>Login</a>
+                <a href="/login" style={{ color: "#d4af37" }}>
+                  Login
+                </a>
               </div>
             </div>
           </div>
@@ -334,7 +411,9 @@ function SignupPage() {
       {/* FOOTER */}
       <footer className="mv-footer">
         <p>
-          © 2026 MavunoPay — Built on Stellar for Kenya's Farmers &nbsp;|&nbsp; <a href="#">Privacy</a> &nbsp;|&nbsp; <a href="#">Terms</a> &nbsp;|&nbsp; <a href="#">Contact</a>
+          © 2026 MavunoPay — Built on Stellar for Kenya's Farmers &nbsp;|&nbsp;{" "}
+          <a href="#">Privacy</a> &nbsp;|&nbsp; <a href="#">Terms</a> &nbsp;|&nbsp;{" "}
+          <a href="#">Contact</a>
         </p>
       </footer>
     </>

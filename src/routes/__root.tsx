@@ -78,17 +78,37 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "mavunopay" },
-      { name: "description", content: "MavunoPay Frontend: A user-friendly web interface for managing payments and financial services." },
+      {
+        name: "description",
+        content:
+          "MavunoPay Frontend: A user-friendly web interface for managing payments and financial services.",
+      },
       { name: "author", content: "mavunopay" },
       { property: "og:title", content: "mavunopay" },
-      { property: "og:description", content: "MavunoPay Frontend: A user-friendly web interface for managing payments and financial services." },
+      {
+        property: "og:description",
+        content:
+          "MavunoPay Frontend: A user-friendly web interface for managing payments and financial services.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@mavunopay" },
       { name: "twitter:title", content: "mavunopay" },
-      { name: "twitter:description", content: "MavunoPay Frontend: A user-friendly web interface for managing payments and financial services." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/Em7jWxxXdjc7vFxxLdugQNpJAg23/social-images/social-1780830803511-mavunopay.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/Em7jWxxXdjc7vFxxLdugQNpJAg23/social-images/social-1780830803511-mavunopay.webp" },
+      {
+        name: "twitter:description",
+        content:
+          "MavunoPay Frontend: A user-friendly web interface for managing payments and financial services.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/Em7jWxxXdjc7vFxxLdugQNpJAg23/social-images/social-1780830803511-mavunopay.webp",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/Em7jWxxXdjc7vFxxLdugQNpJAg23/social-images/social-1780830803511-mavunopay.webp",
+      },
     ],
     links: [
       {

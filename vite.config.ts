@@ -12,15 +12,17 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
-  // Dev server proxy: forward frontend `/api` requests to the backend.
-  // Adjust `target` below if your backend runs on a different host/port.
+  nitro: {
+    preset: process.env.VERCEL ? "vercel" : "node-server",
+  },
   vite: {
     server: {
+      port: 8080,
+      strictPort: false,
       proxy: {
         "/api": {
-          target: "http://localhost:3001",
+          target: "http://localhost:3002",
           changeOrigin: true,
-          secure: false,
         },
       },
     },

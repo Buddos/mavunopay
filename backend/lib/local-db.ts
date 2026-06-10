@@ -1,7 +1,10 @@
 import fs from 'fs';
 import path from 'path';
+import { getDataDir } from './data-dir';
 
-const DB_PATH = path.join(process.cwd(), 'data', 'db.json');
+function getDbPath() {
+  return path.join(getDataDir(), 'db.json');
+}
 
 export function ensureLocalDbShape(data: any) {
   return {
@@ -18,13 +21,14 @@ export function ensureLocalDbShape(data: any) {
 }
 
 export function readLocalDb() {
-  if (!fs.existsSync(DB_PATH)) {
-    fs.writeFileSync(DB_PATH, JSON.stringify(ensureLocalDbShape({}), null, 2));
+  const dbPath = getDbPath();
+  if (!fs.existsSync(dbPath)) {
+    fs.writeFileSync(dbPath, JSON.stringify(ensureLocalDbShape({}), null, 2));
   }
-  const raw = fs.readFileSync(DB_PATH, 'utf-8');
+  const raw = fs.readFileSync(dbPath, 'utf-8');
   return ensureLocalDbShape(JSON.parse(raw || '{}'));
 }
 
 export function writeLocalDb(data: any) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(ensureLocalDbShape(data), null, 2));
+  fs.writeFileSync(getDbPath(), JSON.stringify(ensureLocalDbShape(data), null, 2));
 }

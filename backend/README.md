@@ -20,8 +20,7 @@ APIs:
 This is a minimal prototype using file-based JSON storage (`data/db.json`). Replace with a real DB in production.
 
 Environment:
-- Create `.env.local` with `STELLAR_OPS_ACCOUNT_SECRET`, `DATABASE_URL`, and other secrets as needed.
-- If your password contains special characters such as `@`, encode it as `%40` in `DATABASE_URL`.
-- Example:
-  `postgresql://postgres:Winnerbonnie%402004@db.llebclfooyrcjrqewzdl.supabase.co:5432/postgres`
+- Copy `backend/.env.example` to `backend/.env` and set `DATABASE_URL` from the Supabase dashboard.
+- Use the **Session pooler** connection string (recommended for Vercel). Encode `@` in passwords as `%40`.
+- Test connectivity: `npm run test:supabase` (from repo root).
 

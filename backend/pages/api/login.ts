@@ -1,15 +1,8 @@
-import fs from 'fs';
-import path from 'path';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { withCors } from '../../lib/cors';
 import { query, useSupabase, ensureFarmersSchema } from '../../lib/db';
 import { hashPin } from '../../lib/auth';
-
-const DB = path.join(process.cwd(), 'data', 'db.json');
-
-function readDB() {
-  return JSON.parse(fs.readFileSync(DB, 'utf-8'));
-}
+import { readLocalDb } from '../../lib/local-db';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -36,7 +29,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     }
     delete farmer.pin;
   } else {
-    const db = readDB();
+    const db = readLocalDb();
     farmer = db.farmers.find((f: any) => f.phone === phone) || null;
     if (!farmer || farmer.pin !== hashedPin) {
       return res.status(401).json({ error: 'Invalid phone or PIN' });

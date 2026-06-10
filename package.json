@@ -1,16 +1,23 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "mavunopay",
   "private": true,
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
+    "dev": "node scripts/dev.mjs",
+    "dev:web": "vite dev",
+    "dev:api": "npm run dev --prefix backend",
+    "postinstall": "npm install --prefix backend",
     "build": "vite build",
+    "start": "node scripts/dev.mjs",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
+    "preview:prod": "node dist/server/index.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
+    "test:registration": "node scripts/test-farmer-registration.mjs",
+    "test:supabase": "node scripts/test-supabase-connection.mjs",
     "coverage": "vitest run --coverage"
   },
   "dependencies": {

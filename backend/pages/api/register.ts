@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { generateKeypair, fundAccountIfNeeded, createTrustline, monitorMinimumBalance } from '../../lib/stellar';
 import { withCors } from '../../lib/cors';
-import { query, useSupabase, ensureFarmersSchema } from '../../lib/db';
+import { ensureFarmersSchema, insertAllocationRules, query, useSupabase } from '../../lib/db';
 import { hashPin } from '../../lib/auth';
 import { readLocalDb, writeLocalDb } from '../../lib/local-db';
 
@@ -48,13 +48,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
         [farmerId, phone, name || null, nationalId || null, pinHash, keys.publicKey, farmer.createdAt, 560, 'Bronze', null, 'member']
       );
-
-      for (const rule of defaultAllocationRules) {
-        await query(
-          `INSERT INTO allocation_rules (farmer_id, key, pct) VALUES ($1, $2, $3)`,
-          [farmerId, rule.key, rule.pct]
-        );
-      }
+      await insertAllocationRules(farmerId, defaultAllocationRules);
     } else {
       const db = readLocalDb();
       db.farmers.push({ ...farmer, pin: pinHash, nationalId: nationalId || null });

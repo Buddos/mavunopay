@@ -2,6 +2,9 @@ node_modules
 dist
 .output
 .vinxi
+.next
+backend
+src/contracts
 pnpm-lock.yaml
 package-lock.json
 bun.lock

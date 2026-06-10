@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { apiUrl } from "@/lib/api";
 
 export const Route = createFileRoute("/goals")({
   head: () => ({ meta: [{ title: "MavunoPay — Goals" }] }),
@@ -11,7 +12,7 @@ function Goals() {
   const [goals, setGoals] = useState<any[]>([]);
 
   useEffect(() => {
-    const stored = localStorage.getItem('mavunopay_farmer');
+    const stored = localStorage.getItem("mavunopay_farmer");
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
@@ -23,7 +24,7 @@ function Goals() {
       }
     }
 
-    const id = localStorage.getItem('mavunopay_farmer_id');
+    const id = localStorage.getItem("mavunopay_farmer_id");
     if (id) {
       setFarmer({ id });
       fetchGoals(id);
@@ -31,7 +32,7 @@ function Goals() {
   }, []);
 
   async function fetchGoals(id: string) {
-    const res = await fetch(`/api/goals?farmerId=${id}`);
+    const res = await fetch(apiUrl(`/api/goals?farmerId=${id}`));
     if (res.ok) {
       const j = await res.json();
       setGoals(j.goals ?? []);
@@ -47,7 +48,8 @@ function Goals() {
       <div className="mt-6 space-y-4">
         {goals.length === 0 ? (
           <div className="rounded-lg border bg-white p-4 text-sm text-slate-600">
-            You have no savings goals yet. Create one from the dashboard to start allocating funds automatically.
+            You have no savings goals yet. Create one from the dashboard to start allocating funds
+            automatically.
           </div>
         ) : (
           goals.map((goal) => {
@@ -59,7 +61,9 @@ function Goals() {
                 <div className="flex items-center justify-between gap-4">
                   <div>
                     <div className="text-base font-semibold">{goal.name}</div>
-                    <div className="text-sm text-slate-500">Target: KES {target.toLocaleString()}</div>
+                    <div className="text-sm text-slate-500">
+                      Target: KES {target.toLocaleString()}
+                    </div>
                   </div>
                   <div className="text-right text-sm text-slate-700">
                     <div className="font-semibold">KES {balance.toLocaleString()}</div>

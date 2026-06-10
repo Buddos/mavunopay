@@ -1,21 +1,22 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { useEffect, useState } from 'react';
+import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { apiUrl } from "@/lib/api";
 
-export const Route = createFileRoute('/cooperative')({
-  head: () => ({ meta: [{ title: 'MavunoPay — Cooperative Dashboard' }] }),
+export const Route = createFileRoute("/cooperative")({
+  head: () => ({ meta: [{ title: "MavunoPay — Cooperative Dashboard" }] }),
   component: CooperativeDashboard,
 });
 
 export default function CooperativeDashboard() {
   const [farmer, setFarmer] = useState<any | null>(null);
   const [coops, setCoops] = useState<any[]>([]);
-  const [status, setStatus] = useState('');
-  const [joinCode, setJoinCode] = useState('');
-  const [coopName, setCoopName] = useState('');
-  const [coopDesc, setCoopDesc] = useState('');
+  const [status, setStatus] = useState("");
+  const [joinCode, setJoinCode] = useState("");
+  const [coopName, setCoopName] = useState("");
+  const [coopDesc, setCoopDesc] = useState("");
 
   useEffect(() => {
-    const stored = localStorage.getItem('mavunopay_farmer');
+    const stored = localStorage.getItem("mavunopay_farmer");
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
@@ -27,7 +28,7 @@ export default function CooperativeDashboard() {
       }
     }
 
-    const legacyId = localStorage.getItem('mavunopay_farmer_id');
+    const legacyId = localStorage.getItem("mavunopay_farmer_id");
     if (legacyId) {
       setFarmer({ id: legacyId });
       refreshData(legacyId);
@@ -39,7 +40,7 @@ export default function CooperativeDashboard() {
   }
 
   async function fetchCooperatives(farmerId: string) {
-    const res = await fetch(`/api/cooperatives?farmerId=${farmerId}`);
+    const res = await fetch(apiUrl(`/api/cooperatives?farmerId=${farmerId}`));
     if (res.ok) {
       const json = await res.json();
       setCoops(json.cooperatives ?? []);
@@ -50,36 +51,36 @@ export default function CooperativeDashboard() {
 
   async function createCoop() {
     if (!farmer) return;
-    const res = await fetch('/api/cooperatives', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch(apiUrl("/api/cooperatives"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ farmerId: farmer.id, name: coopName, description: coopDesc }),
     });
     const payload = await res.json();
     if (res.ok) {
-      setStatus('Cooperative created successfully.');
-      setCoopName('');
-      setCoopDesc('');
+      setStatus("Cooperative created successfully.");
+      setCoopName("");
+      setCoopDesc("");
       refreshData(farmer.id);
     } else {
-      setStatus(payload.error || 'Unable to create cooperative.');
+      setStatus(payload.error || "Unable to create cooperative.");
     }
   }
 
   async function joinCoop() {
     if (!farmer) return;
-    const res = await fetch('/api/cooperatives', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ farmerId: farmer.id, action: 'join', joinCode }),
+    const res = await fetch(apiUrl("/api/cooperatives"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ farmerId: farmer.id, action: "join", joinCode }),
     });
     const payload = await res.json();
     if (res.ok) {
-      setStatus('Joined cooperative successfully.');
-      setJoinCode('');
+      setStatus("Joined cooperative successfully.");
+      setJoinCode("");
       refreshData(farmer.id);
     } else {
-      setStatus(payload.error || 'Unable to join cooperative.');
+      setStatus(payload.error || "Unable to join cooperative.");
     }
   }
 
@@ -99,9 +100,14 @@ export default function CooperativeDashboard() {
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h2 className="text-2xl font-semibold">Cooperative dashboard</h2>
-          <p className="mt-1 text-sm text-slate-500">Track your co-op membership, pool, members, and governance actions.</p>
+          <p className="mt-1 text-sm text-slate-500">
+            Track your co-op membership, pool, members, and governance actions.
+          </p>
         </div>
-        <a href="/dashboard" className="rounded-md border border-slate-200 bg-slate-100 px-4 py-2 text-sm">
+        <a
+          href="/dashboard"
+          className="rounded-md border border-slate-200 bg-slate-100 px-4 py-2 text-sm"
+        >
           Back to dashboard
         </a>
       </div>
@@ -126,23 +132,35 @@ export default function CooperativeDashboard() {
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h4 className="text-base font-semibold text-slate-900">{coop.name}</h4>
-                    <p className="mt-1 text-sm text-slate-600">{coop.description || 'No description provided.'}</p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      {coop.description || "No description provided."}
+                    </p>
                   </div>
                   <span className="rounded-full bg-slate-100 px-3 py-1 text-xs uppercase tracking-[0.12em] text-slate-700">
-                    {coop.leaderId === farmer.id ? 'Leader' : 'Member'}
+                    {coop.leaderId === farmer.id ? "Leader" : "Member"}
                   </span>
                 </div>
                 <div className="mt-4 grid gap-3 sm:grid-cols-3">
                   <div className="rounded-2xl bg-white p-4">
-                    <div className="text-xs uppercase tracking-[0.14em] text-slate-500">Pool balance</div>
-                    <div className="mt-2 text-xl font-semibold text-slate-900">KES {Number(coop.savingsBalance || 0).toLocaleString()}</div>
+                    <div className="text-xs uppercase tracking-[0.14em] text-slate-500">
+                      Pool balance
+                    </div>
+                    <div className="mt-2 text-xl font-semibold text-slate-900">
+                      KES {Number(coop.savingsBalance || 0).toLocaleString()}
+                    </div>
                   </div>
                   <div className="rounded-2xl bg-white p-4">
-                    <div className="text-xs uppercase tracking-[0.14em] text-slate-500">Members</div>
-                    <div className="mt-2 text-xl font-semibold text-slate-900">{Array.isArray(coop.members) ? coop.members.length : '—'}</div>
+                    <div className="text-xs uppercase tracking-[0.14em] text-slate-500">
+                      Members
+                    </div>
+                    <div className="mt-2 text-xl font-semibold text-slate-900">
+                      {Array.isArray(coop.members) ? coop.members.length : "—"}
+                    </div>
                   </div>
                   <div className="rounded-2xl bg-white p-4">
-                    <div className="text-xs uppercase tracking-[0.14em] text-slate-500">Join code</div>
+                    <div className="text-xs uppercase tracking-[0.14em] text-slate-500">
+                      Join code
+                    </div>
                     <div className="mt-2 text-xl font-semibold text-slate-900">{coop.joinCode}</div>
                   </div>
                 </div>
@@ -153,7 +171,10 @@ export default function CooperativeDashboard() {
                   <div className="mt-2 space-y-1">
                     {Array.isArray(coop.members) && coop.members.length > 0 ? (
                       coop.members.map((memberId: string) => (
-                        <div key={memberId} className="rounded-lg bg-white px-3 py-2 text-sm text-slate-700">
+                        <div
+                          key={memberId}
+                          className="rounded-lg bg-white px-3 py-2 text-sm text-slate-700"
+                        >
                           {memberId}
                         </div>
                       ))
@@ -172,7 +193,9 @@ export default function CooperativeDashboard() {
         <div className="flex items-center justify-between gap-3">
           <div>
             <h3 className="text-lg font-medium">Create or join a cooperative</h3>
-            <p className="mt-1 text-sm text-slate-500">Start your own group savings community or join a trade cooperative with the join code.</p>
+            <p className="mt-1 text-sm text-slate-500">
+              Start your own group savings community or join a trade cooperative with the join code.
+            </p>
           </div>
         </div>
 
@@ -223,7 +246,9 @@ export default function CooperativeDashboard() {
           </div>
         </div>
 
-        {status && <div className="mt-6 rounded-lg bg-slate-100 p-4 text-sm text-slate-700">{status}</div>}
+        {status && (
+          <div className="mt-6 rounded-lg bg-slate-100 p-4 text-sm text-slate-700">{status}</div>
+        )}
       </section>
     </div>
   );
